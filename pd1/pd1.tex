@@ -1,0 +1,50 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage{polski}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\author{Jakub Postępski}
+\title{Pracownia dyplomowa 1}
+\begin{document}
+	\maketitle
+	\section{Wstęp}
+	Wynikiem pracy inżynierskiej ma być napisanie oprogramowania do mikrokontrolera STM32F107VCTx, zamontowanego na pokładzie robota mobilnego Elektron.\newline Robot jest samobieżny i jest platformą różnicową. Napędzają go dwa silniki, każdy z nich sprzężony jest z trzema kołami. Ich pracę bezpośrednio nadzoruje mikrokontoler, zainstalowany na sterowniku silników i posiadający port komunikacyjny RS-485. Sterowanie realizowane jest przy pomocy głównego komputera, z procesorem Intel Atom, dyskiem SSD oraz systemem Ubuntu z zainstalowanym ROSem. Zarówno główny komputer, jak i sterownik silników mają być podłączone do płytki ze wspomnianym STMem. Odpowiednio napisane oprogramowanie, ma zagwarantować deterministyczną i względnie szybką komunikację, zarówno z użytkownikiem jak i ze sterownikiem silników.\newline
+	Dalej płytką będziemy nazywać płytkę sterownika Elektrona, wyposażoną w mikrokontroler STM32F107VCTx, złącza komunikacyjne z komputerem centralnym oraz sterownikiem silników, wyposażoną w zestaw przekaźników, załączających napięcie 24V, zestaw przycisków oraz wyświetlacz graficzny.
+	\section{Wymagania stawiane pracy}
+	Z nieznanych przyczyn, nie jestem w stanie uruchomić kontrolera Ethernetu, na płytce, kod zawiesza się w miejscu resetowania przypisanego Ethernetowi DMA, w trakcie konfiguracji interfejsu. W związku z tym uznaliśmy, aby nie używać Ethernetu do komunikacji. Ethernet był sprawdzany na Elektronie 2 oraz Elektronie 3, na obu błąd jest ten sam. W celach poznawczych uruchomiłem Ethernet na Nucleo z procesorem STM32F207, bardzo zbliżonego możliwościami do STM32F107, i wszystko działało. Brak możliwości komunikacji w ten sposób spowodował zmianę wymagań funkcjonalnych pracy.
+	\subsection{Wymagania funkcjonalne wysokopoziomowe}
+	\begin{enumerate}
+		\item Komunikacja ma być deterministyczna w czasie.
+		\item Komunikacja ma się odbywać z częstotliwością 100Hz.
+		\item Ma być dostępna biblioteka, dla komputera centralnego, która będzie realizować określone funkcje.
+	\end{enumerate}
+	\subsection{Funkcje dostępne w bibliotece}
+	\begin{enumerate}
+		\item Odczyt enkoderów (odometria).
+		\item Zadawanie prędkości silników.
+		\item Zwracanie informacji o napięciach zasilania.
+		\item Zwracanie informacji o niskim napięciu, oraz sygnalizacja dźwiękowa zdarzenia.
+		\item Załączanie i stan przekaźników.
+		\item Informacja o wciśniętych przyciskach.
+		\item Obsługa przycisku wyłączania, z wcześniejszym shutdownem systemu operacyjnego w pececie, a dopiero potem odcięciem zasilania.
+	\end{enumerate}
+	\subsection{Wymagania funkcjonalne niskopoziomowe}
+	\begin{enumerate}
+		\item Do komunikacji między płytką, a komputerem centralnym wykorzystujemy UART4, przez RS-232, podłączony przez złącze DB-9. Niestety komunikacja nie jest realizowana przez Ethernet, nie jestem w stanie uruchomić tego portu.
+		\item Do sprawdzenia zostaje prędkośc przesyłania, prawdopodobnie będzie to 230400b/s.
+		\item Do ustalenia zostaje protokół komunikacji między płytką, a komputerem. Protokół powinien działać na zasadzie odpytywania, powinien posiadać weryfikacje poprawności pakietów, oraz możliwość umieszczenia znaczników czasowych.
+		\item Do komunikacji płytki z silnikami używamy istniejącej implementacji wackowej biblioteki NFv2. Istnieje przypuszczenie, że trzeba będzie zwiększyć prędkość komunikacji, aktualnie jest to 9600b/s. Złączem do komunikacji będzie USART1, po RS485.
+		\item Używam FreeRTOS, z biblioteką HAL, z CubeMX.
+	\end{enumerate}
+	\section{Opis zrealizowanych działań}
+	\begin{enumerate}
+		\item Zamontowanie dysku SSD, przegląd okablowania robota Elektron 3.
+		\item Uruchomienie płytki z mikrokontrolerem STM32F107.
+		\item Konfiguracja urządzeń peryferyjnych płytki, w tym złączy UART, przycisków, wyświetlacza, przekaźników mocy.
+		\item Zakończone niepowodzeniem uruchomienie portu Ethernetowego.
+		\item Konfiguracja FreeRTOS. 
+	\end{enumerate}
+	\section{Opis planowanych działań}
+\end{document}
