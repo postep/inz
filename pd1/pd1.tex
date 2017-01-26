@@ -10,16 +10,41 @@
 \begin{document}
 	\maketitle
 	\section{Wstęp}
-	Wynikiem pracy inżynierskiej ma być napisanie oprogramowania do mikrokontrolera STM32F107VCTx, zamontowanego na pokładzie robota mobilnego Elektron.\newline Robot jest samobieżny i jest platformą różnicową. Napędzają go dwa silniki, każdy z nich sprzężony jest z trzema kołami. Ich pracę bezpośrednio nadzoruje mikrokontoler, zainstalowany na sterowniku silników i posiadający port komunikacyjny RS-485. Sterowanie realizowane jest przy pomocy głównego komputera, z procesorem Intel Atom, dyskiem SSD oraz systemem Ubuntu z zainstalowanym ROSem. Zarówno główny komputer, jak i sterownik silników mają być podłączone do płytki ze wspomnianym STMem. Odpowiednio napisane oprogramowanie, ma zagwarantować deterministyczną i względnie szybką komunikację, zarówno z użytkownikiem jak i ze sterownikiem silników.\newline
-	Dalej płytką będziemy nazywać płytkę sterownika Elektrona, wyposażoną w mikrokontroler STM32F107VCTx, złącza komunikacyjne z komputerem centralnym oraz sterownikiem silników, wyposażoną w zestaw przekaźników, załączających napięcie 24V, zestaw przycisków oraz wyświetlacz graficzny.
+	\subsection{Zarys pracy}
+	Wynikiem tej pracy inżynierskiej ma być zrealizowanie oprogramowania, przy pomocy którego komunikować będą się podzespoły robota mobilnego Elektron. 
+	\subsection{Opis robota}
+	Instytut Automatyki i Informatyki Stosowanej posiada trzy roboty Elektron, które służą jako pomoc dydaktyczna. Robot ten jest platformą o napędzie różnicowym, relalizowanym przez dwa silniki elektryczne. Każdy z nich sprzężony jest z trzema kołami, lewymi bądź prawymi. Ich pracę bezpośrednio nadzoruje sterownik silników z mikrokontolerem dsPIC33FJ32MC302, posiadającym port komunikacyjny RS-485. Głównym modułem decyzyjnym jest umieszczony w obudowie komputer klasy PC, z procesorem Intel Atom, dyskiem SSD oraz systemem Ubuntu z zainstalowanym ROSem. Po odpowiedniej konfiguracji robot może być podłączony do sieci wi-fi. Można też do niego podłączyć różne peryferia takie jak Microsoft Kinect. Robot zasilany jest z zestawu baterii, ładowanych przy pomocy zasilacza 24V. \newline
+	Robot wyposażony jest w główny sterownik, który posiada łącza komunikacyjne z różnymi częściami robota. W szczególności to z tym modułem komunikuje się komputer centralny oraz sterownik silników, lecz może on też sterować pracą innych peryferiów. Dodatkowo sterownik ten zarządza zasilaniem robota, ma wbudowany wyświetlacz LCD, zestaw przekaźników mocy oraz cztery przyciski monostabilne. Sterownik ten posiada mikrokontroler STM32F107VCT.	
 	\section{Wymagania stawiane pracy}
-	Z nieznanych przyczyn, nie jestem w stanie uruchomić kontrolera Ethernetu, na płytce, kod zawiesza się w miejscu resetowania przypisanego Ethernetowi DMA, w trakcie konfiguracji interfejsu. W związku z tym uznaliśmy, aby nie używać Ethernetu do komunikacji. Ethernet był sprawdzany na Elektronie 2 oraz Elektronie 3, na obu błąd jest ten sam. W celach poznawczych uruchomiłem Ethernet na Nucleo z procesorem STM32F207, bardzo zbliżonego możliwościami do STM32F107, i wszystko działało. Brak możliwości komunikacji w ten sposób spowodował zmianę wymagań funkcjonalnych pracy.
+	Głównym celem pracy ma być wytworzenie oraz opis rozwiązania, które pozwoli na szybką, deterministyczną i niezawodną komunikację pomiędzy komputerem centralnym oraz głównym sterownikiem z mikrokontrolerem STM32F107. Konsekwencją takiego działania ma być sprawny nadzór podzespołów Elektrona, z których najważniejsza jest transmisja sterowania silników. Działania w początkowej fazie mają być prowadzone na robocie Elektron 3. W przypadku pomyślnego ich ukończenia, istnieje szansa, że wszystkie trzy roboty Elektron zostaną zmodyfikowane w ten sam sposób. Wykonywane działania mają w praktyce objąć napisanie programu dla mikrokontrolera STM32F107, oraz odpowiedniej biblioteki dla systemu Ubuntu. Biblioteka ma zarządzać komunikacją między komputerem centralnym i głownym sterownikiem oraz silnikami robota. Program sterownika silników jest już napisany, a jego kod i sposób komunikacji są dostępne.
 	\subsection{Wymagania funkcjonalne wysokopoziomowe}
 	\begin{enumerate}
-		\item Komunikacja ma być deterministyczna w czasie.
+		\item Komunikacja ma być deterministyczna w dziedzinie czasu.
 		\item Komunikacja ma się odbywać z częstotliwością 100Hz.
+		\item Komunikacja ma być odporna na różnego rodzaju błędy.
 		\item Ma być dostępna biblioteka, dla komputera centralnego, która będzie realizować określone funkcje.
+		\item Zakłada się brak możliwości zmiany i rozbudowy istniejącego sprzętu.
+		\item Zakłada się brak możliwości zmiany sytemu operacyjnego Ubuntu 14.04 LTS.
 	\end{enumerate}
+	\subsection{Możliwości sprzętowe}
+	Podstawowym ograniczeniem, przy wyborze sposobu realizacji zadania, są możliwości sprzętowe. Płyta główna komputera centralnego, jak łatwo sobie wyobrazić, wyposażona jest w standardowy zestaw portów komunikacyjnych, a więc złącze Ethernet, złącza USB 2.0 oraz złącze DB-9 z protokołem RS232. Mikrokontroler STM32F107 posiada wbudowany kontroler Ethernetu wraz z własnym DMA, szyny komunikacyjnej CAN, portu USB oraz dwa układy USART i trzy układy UART. Wszyskie wymienione kontrolery mają wyprowadzenia na płytce głownego sterownika, przy czym niektóre wyprowadzenia urządzeń UART i USART dzięki układom MAX3485 konwertowane są do standartu RS-485, a inne dzięki układom MAX3232 konwertowane są do standartu RS-232.
+	\subsection{Dostępne rozwiązania komunikacji}
+	Aby wybrać odpowiednią architekturę rozwiązania autor wykonał rozpoznanie dostępnych środków z uwzględnieniem ograniczeń sprzętu. Poniżej zamieszczono krótki opis niektórych z technologii.
+	\begin{enumerate}
+		\item \textbf{Ethercat} - jest to standard wykorzystujący sieć Ethernet do szybkiej wymiany informacji w czasie rzeczywistym. W sieci Ethercat musi być jeden węzeł określany jako master, oraz praktycznie dowolna ilość węzłów slave. Mimo, że jest to potencjalnie najlepsze rozwiązanie, ze względu na determinizm oraz wyjątkowo małe opóźnienia, nie mogło zostać zastosowane, przez ograniczenia sprzętowe. O ile wezeł master może używać normalnego konrolera Ethernetu, standard wymaga, aby węzły slave posiadały specjalnie przystosowane kontrolery Ethernetu.
+		\item \textbf{Pakiety TCP/IP oraz UDP/IP} - między komputerem centralnym, a mikrokontrolerem głównego sterownika miałyby być wysyłane normalne pakiety danych, przez złącze Ethernet. Dzięki temu, że w robocie można zapewnić bezpośrednie połączenie kabla Ethernetowego między urządzeniami, nie występowałyby kolizje pakietów w warstwie łącza danych. Dzięki temu można potencjalnie liczyć na efekty zbliżone do tych uzyskiwanych w sieciach czasu rzeczywistego.
+		\item \textbf{Magistrala CAN} - sieć szeregowa, zapewniająca transmisję rzędu 1Mb/s. Rozwiązanie to, mimo że popularne i względnie tanie, zostało odrzucone, przez brak interfejsu po stronie komputera.
+		\item \textbf{USB} - Popularny interfejs, który został odrzucony przez brak gwarancji determinizmu czasowego.
+		\item \textbf{RS-232} - Jedno z prostszych łączy szeregowych, co jest jednocześnie wadą i zaletą. Nie zapewnia zbyt szybkich transferów, lecz łatwo je uruchomić i powinno być deterministyczne czasowo.
+	\end{enumerate} 
+	\begin{}
+	\subsection{Wybór rozwiązania}
+	Początkowo autor chciał wykorzystać zwykłe połączenie Ethernetu, aby za pomocą pakietów UDP, przesyłać dane. Rozwiązanie to jest dość szybkie, jak na postawione wymagania, potencjalnie bezawaryjne oraz praktycznie bezkosztowe. Niestety okazało się, że autor z bliżej nieokreślonych przyczyn, opisanych 
+
+
+
+	Z nieznanych przyczyn, nie jestem w stanie uruchomić kontrolera Ethernetu, na płytce, kod zawiesza się w miejscu resetowania przypisanego Ethernetowi DMA, w trakcie konfiguracji interfejsu. W związku z tym uznaliśmy, aby nie używać Ethernetu do komunikacji. Ethernet był sprawdzany na Elektronie 2 oraz Elektronie 3, na obu błąd jest ten sam. W celach poznawczych uruchomiłem Ethernet na Nucleo z procesorem STM32F207, bardzo zbliżonego możliwościami do STM32F107, i wszystko działało. Brak możliwości komunikacji w ten sposób spowodował zmianę wymagań funkcjonalnych pracy.
+
 	\subsection{Funkcje dostępne w bibliotece}
 	\begin{enumerate}
 		\item Odczyt enkoderów (odometria).
