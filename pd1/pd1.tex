@@ -5,6 +5,7 @@
 \usepackage{amsfonts}
 \usepackage{amssymb}
 \usepackage{graphicx}
+\usepackage{listings}
 \author{Jakub Postępski}
 \title{Pracownia dyplomowa 1}
 \begin{document}
@@ -13,7 +14,7 @@
 	\subsection{Zarys pracy}
 	Wynikiem tej pracy inżynierskiej ma być zrealizowanie oprogramowania, przy pomocy którego komunikować będą się podzespoły robota mobilnego Elektron. 
 	\subsection{Opis robota}
-	Instytut Automatyki i Informatyki Stosowanej posiada trzy roboty Elektron, które służą jako pomoc dydaktyczna. Robot ten jest platformą o napędzie różnicowym, relalizowanym przez dwa silniki elektryczne. Każdy z nich sprzężony jest z trzema kołami, lewymi bądź prawymi. Ich pracę bezpośrednio nadzoruje sterownik silników z mikrokontolerem dsPIC33FJ32MC302, posiadającym port komunikacyjny RS-485. Głównym modułem decyzyjnym jest umieszczony w obudowie komputer klasy PC, z procesorem Intel Atom, dyskiem SSD oraz systemem Ubuntu z zainstalowanym ROSem. Po odpowiedniej konfiguracji robot może być podłączony do sieci wi-fi. Można też do niego podłączyć różne peryferia takie jak Microsoft Kinect. Robot zasilany jest z zestawu baterii, ładowanych przy pomocy zasilacza 24V. \newline
+	Instytut Automatyki i Informatyki Stosowanej posiada trzy roboty Elektron, które służą jako pomoc dydaktyczna. Konstrukcja ta jest platformą o napędzie różnicowym, relalizowanym przez dwa silniki elektryczne. Każdy z nich sprzężony jest z trzema kołami, lewymi bądź prawymi. Ich pracę bezpośrednio nadzoruje sterownik silników z mikrokontolerem dsPIC33FJ32MC302, posiadającym port komunikacyjny RS-485. Głównym modułem decyzyjnym jest umieszczony w obudowie robota komputer klasy PC, z procesorem Intel Atom, dyskiem SSD oraz systemem Ubuntu z zainstalowanym ROSem. Po odpowiedniej konfiguracji robot może być podłączony do sieci wi-fi. Można też do niego podłączyć różne peryferia takie jak Microsoft Kinect. Robot zasilany jest z zestawu baterii, ładowanych przy pomocy zasilacza 24V. \newline
 	Robot wyposażony jest w główny sterownik, który posiada łącza komunikacyjne z różnymi częściami robota. W szczególności to z tym modułem komunikuje się komputer centralny oraz sterownik silników, lecz może on też sterować pracą innych peryferiów. Dodatkowo sterownik ten zarządza zasilaniem robota, ma wbudowany wyświetlacz LCD, zestaw przekaźników mocy oraz cztery przyciski monostabilne. Sterownik ten posiada mikrokontroler STM32F107VCT.	
 	\section{Wymagania stawiane pracy}
 	Głównym celem pracy ma być wytworzenie oraz opis rozwiązania, które pozwoli na szybką, deterministyczną i niezawodną komunikację pomiędzy komputerem centralnym oraz głównym sterownikiem z mikrokontrolerem STM32F107. Konsekwencją takiego działania ma być sprawny nadzór podzespołów Elektrona, z których najważniejsza jest transmisja sterowania silników. Działania w początkowej fazie mają być prowadzone na robocie Elektron 3. W przypadku pomyślnego ich ukończenia, istnieje szansa, że wszystkie trzy roboty Elektron zostaną zmodyfikowane w ten sam sposób. Wykonywane działania mają w praktyce objąć napisanie programu dla mikrokontrolera STM32F107, oraz odpowiedniej biblioteki dla systemu Ubuntu. Biblioteka ma zarządzać komunikacją między komputerem centralnym i głownym sterownikiem oraz silnikami robota. Program sterownika silników jest już napisany, a jego kod i sposób komunikacji są dostępne.
@@ -26,50 +27,88 @@
 		\item Zakłada się brak możliwości zmiany i rozbudowy istniejącego sprzętu.
 		\item Zakłada się brak możliwości zmiany sytemu operacyjnego Ubuntu 14.04 LTS.
 	\end{enumerate}
+	\subsection{Wymagania funkcjonalne}
+	\subsubsection{Funkcje dostępne w bibliotece}
+	\begin{enumerate}
+		\item Odczyt enkoderów (odometria).
+		\item Zadawanie prędkości silników.
+		\item Zwracanie informacji o napięciu baterii zasilających.
+		\item Załączanie i stan przekaźników.
+		\item Informacja o wciśniętych przyciskach.
+		\item Możliwość wyłączenia zasilania robota, z opóźnieniem czasowym, pozwalającym na bezpieczne wyłączenie systemu operacyjnego komputera centralnego.
+		\item Sterowanie wbudowanym w sterownik główny głośniczkiem.
+		\item Pomiar czasu transmisji w milisekundach.
+	\end{enumerate} 
+	\subsubsection{Funkcje oprogramowania mikrokontrolera}
+	\begin{enumerate}
+		\item Wyświetlacz LCD informujący o stanie połączenia z komputerem centralnym, stanie baterii, stanie przekaźników.
+		\item Sygnalizacja dźwiękowa faktu rozładowania baterii.
+		\item Automatyczne wyłączanie robota, w przypadku krytycznie niskiego napięcia.
+		\item Kontrola sterownika silników.
+		\item Realizacja komunikacji z komputerem centralnym, umożliwiająca wykorzystanie zdefiniowanych powyżej funkcji biblioteki.
+	\end{enumerate}
+	\section{Dobór rozwiązania}
 	\subsection{Możliwości sprzętowe}
 	Podstawowym ograniczeniem, przy wyborze sposobu realizacji zadania, są możliwości sprzętowe. Płyta główna komputera centralnego, jak łatwo sobie wyobrazić, wyposażona jest w standardowy zestaw portów komunikacyjnych, a więc złącze Ethernet, złącza USB 2.0 oraz złącze DB-9 z protokołem RS232. Mikrokontroler STM32F107 posiada wbudowany kontroler Ethernetu wraz z własnym DMA, szyny komunikacyjnej CAN, portu USB oraz dwa układy USART i trzy układy UART. Wszyskie wymienione kontrolery mają wyprowadzenia na płytce głownego sterownika, przy czym niektóre wyprowadzenia urządzeń UART i USART dzięki układom MAX3485 konwertowane są do standartu RS-485, a inne dzięki układom MAX3232 konwertowane są do standartu RS-232.
 	\subsection{Dostępne rozwiązania komunikacji}
 	Aby wybrać odpowiednią architekturę rozwiązania autor wykonał rozpoznanie dostępnych środków z uwzględnieniem ograniczeń sprzętu. Poniżej zamieszczono krótki opis niektórych z technologii.
 	\begin{enumerate}
 		\item \textbf{Ethercat} - jest to standard wykorzystujący sieć Ethernet do szybkiej wymiany informacji w czasie rzeczywistym. W sieci Ethercat musi być jeden węzeł określany jako master, oraz praktycznie dowolna ilość węzłów slave. Mimo, że jest to potencjalnie najlepsze rozwiązanie, ze względu na determinizm oraz wyjątkowo małe opóźnienia, nie mogło zostać zastosowane, przez ograniczenia sprzętowe. O ile wezeł master może używać normalnego konrolera Ethernetu, standard wymaga, aby węzły slave posiadały specjalnie przystosowane kontrolery Ethernetu.
-		\item \textbf{Pakiety TCP/IP oraz UDP/IP} - między komputerem centralnym, a mikrokontrolerem głównego sterownika miałyby być wysyłane normalne pakiety danych, przez złącze Ethernet. Dzięki temu, że w robocie można zapewnić bezpośrednie połączenie kabla Ethernetowego między urządzeniami, nie występowałyby kolizje pakietów w warstwie łącza danych. Dzięki temu można potencjalnie liczyć na efekty zbliżone do tych uzyskiwanych w sieciach czasu rzeczywistego.
+		\item \textbf{Pakiety TCP/IP oraz UDP/IP} - między komputerem centralnym, a mikrokontrolerem głównego sterownika miałyby być wysyłane standardowe pakiety danych, przez złącze Ethernet. Dzięki temu, że w robocie można zapewnić bezpośrednie połączenie kabla Ethernetowego między urządzeniami, nie występowałyby kolizje pakietów w warstwie łącza danych. Dzięki temu można potencjalnie liczyć na efekty zbliżone do tych uzyskiwanych w sieciach czasu rzeczywistego.
 		\item \textbf{Magistrala CAN} - sieć szeregowa, zapewniająca transmisję rzędu 1Mb/s. Rozwiązanie to, mimo że popularne i względnie tanie, zostało odrzucone, przez brak interfejsu po stronie komputera.
 		\item \textbf{USB} - Popularny interfejs, który został odrzucony przez brak gwarancji determinizmu czasowego.
 		\item \textbf{RS-232} - Jedno z prostszych łączy szeregowych, co jest jednocześnie wadą i zaletą. Nie zapewnia zbyt szybkich transferów, lecz łatwo je uruchomić i powinno być deterministyczne czasowo.
-	\end{enumerate} 
-	\begin{}
-	\subsection{Wybór rozwiązania}
-	Początkowo autor chciał wykorzystać zwykłe połączenie Ethernetu, aby za pomocą pakietów UDP, przesyłać dane. Rozwiązanie to jest dość szybkie, jak na postawione wymagania, potencjalnie bezawaryjne oraz praktycznie bezkosztowe. Niestety okazało się, że autor z bliżej nieokreślonych przyczyn, opisanych 
-
-
-
-	Z nieznanych przyczyn, nie jestem w stanie uruchomić kontrolera Ethernetu, na płytce, kod zawiesza się w miejscu resetowania przypisanego Ethernetowi DMA, w trakcie konfiguracji interfejsu. W związku z tym uznaliśmy, aby nie używać Ethernetu do komunikacji. Ethernet był sprawdzany na Elektronie 2 oraz Elektronie 3, na obu błąd jest ten sam. W celach poznawczych uruchomiłem Ethernet na Nucleo z procesorem STM32F207, bardzo zbliżonego możliwościami do STM32F107, i wszystko działało. Brak możliwości komunikacji w ten sposób spowodował zmianę wymagań funkcjonalnych pracy.
-
-	\subsection{Funkcje dostępne w bibliotece}
-	\begin{enumerate}
-		\item Odczyt enkoderów (odometria).
-		\item Zadawanie prędkości silników.
-		\item Zwracanie informacji o napięciach zasilania.
-		\item Zwracanie informacji o niskim napięciu, oraz sygnalizacja dźwiękowa zdarzenia.
-		\item Załączanie i stan przekaźników.
-		\item Informacja o wciśniętych przyciskach.
-		\item Obsługa przycisku wyłączania, z wcześniejszym shutdownem systemu operacyjnego w pececie, a dopiero potem odcięciem zasilania.
 	\end{enumerate}
-	\subsection{Wymagania funkcjonalne niskopoziomowe}
-	\begin{enumerate}
-		\item Do komunikacji między płytką, a komputerem centralnym wykorzystujemy UART4, przez RS-232, podłączony przez złącze DB-9. Niestety komunikacja nie jest realizowana przez Ethernet, nie jestem w stanie uruchomić tego portu.
-		\item Do sprawdzenia zostaje prędkośc przesyłania, prawdopodobnie będzie to 230400b/s.
-		\item Do ustalenia zostaje protokół komunikacji między płytką, a komputerem. Protokół powinien działać na zasadzie odpytywania, powinien posiadać weryfikacje poprawności pakietów, oraz możliwość umieszczenia znaczników czasowych.
-		\item Do komunikacji płytki z silnikami używamy istniejącej implementacji wackowej biblioteki NFv2. Istnieje przypuszczenie, że trzeba będzie zwiększyć prędkość komunikacji, aktualnie jest to 9600b/s. Złączem do komunikacji będzie USART1, po RS485.
-		\item Używam FreeRTOS, z biblioteką HAL, z CubeMX.
-	\end{enumerate}
-	\section{Opis zrealizowanych działań}
-	\begin{enumerate}
-		\item Zamontowanie dysku SSD, przegląd okablowania robota Elektron 3.
-		\item Uruchomienie płytki z mikrokontrolerem STM32F107.
-		\item Konfiguracja urządzeń peryferyjnych płytki, w tym złączy UART, przycisków, wyświetlacza, przekaźników mocy.
-		\item Zakończone niepowodzeniem uruchomienie portu Ethernetowego.
-		\item Konfiguracja FreeRTOS. 
-	\end{enumerate}
+	\subsection{Rozwiązanie}
+	Początkowo autor chciał wykorzystać zwykłe połączenie Ethernetu, aby za pomocą pakietów UDP, przesyłać dane. Rozwiązanie to jest dość szybkie, jak na postawione wymagania, potencjalnie bezawaryjne oraz praktycznie bezkosztowe. Niestety okazało się, że autor z pewnych przyczyn, opisanych szczegółowo w dalszej pracy nie jest w stanie uruchomić kontrolera Ethernetu mikrokontrolera. W związku z tym, ostatecznie zdecydowano się na realizację w oparciu o RS-232. Miało to swoje negatywne konsekwencje, takie jak konieczność samodzielnego opakowania danych w ramkę zawierającą sumę CRC oraz spowolnienie transmisji.\newline Zdecydowano też, że oba węzły, to jest komputer centeralny i główny sterownik, będą się komunikować w architekturze zapytanie i odpowiedź, a węzłem nadrzędnym ma być komputer centralny. Jest to najprostsza z możliwych architektur, lecz w zupełności wystarcza do wymiany danych między dwoma urządzeniami.\newline Z uwagi na fakt, że mikrokontroler głównego sterownika, ma wykonywać kilka zadań jednocześnie i niektóre z nich mają narzucony reżim czasowy, zdecydowano się, na zastosowanie systemu czasu rzeczywistego. Przez wsparcie ze strony producenta mikrokontrolera, wybrany został system FreeRTOS.
+
+	\section{Łączność pomiędzy komputerem centralnym a głównym sterownikiem}
+	Po wstępnym poznaniu sprzętu zostały wyspecyfikowane dodatkowe założenia pracy. Transmisja danych odbywać się będzie między UART4 mikrokontrolera, a portem RS-232 komputera centralnego, przy pomocy konwertera napięć MAX3232. Prędkość transmisji to 115200bit/s. Transmisja jest ośmiobitowa, bez bitów parzystości. Aby zapewnić poprawność danych wysyłane struktury opakowywane są w ramki, zgodnie ze standartem High-Level Data Link Control, zatwierdzonym w jednej z norm ISO. Komputer centralny wysyła do głównego sterownika strukturę TxFrame inicjując komunikację. W odpowiedzi wysłane zostają dane zgodne ze strukturą RxFrame. Struktury mają pola opisane poniżej.
+	\begin{lstlisting}
+	typedef struct 
+	{
+		uint32_t timestamp;
+		int16_t left_speed;
+		int16_t right_speed;
+		uint8_t relays;
+		uint8_t sound;
+		uint8_t shutdown;
+	}TxFrame;
+
+	typedef struct
+	{
+		uint32_t timestamp;
+		uint8_t buttons;
+		int32_t left_position;
+		int32_t right_position;
+		uint16_t battery;
+		uint8_t error;
+	}RxFrame;
+	\end{lstlisting}
+	\section{Opis wykonanych czynności}
+	\subsection{Uruchomienie mikrokontrolera STM32F107}
+	Autor pracy nigdy wcześniej nie programował mikrokontrolerów tej firmy. Pewien czas został więc spożytkowany na wdrożenie się w dokumentację mikrokontrolera, oraz wybór środowiska programistycznego. W trakcie rozpozania został skonfigurowany debbuger wraz z programatorem ST-Linkv2. Skonfigurowano też system FreeRTOS w wersji ósmej. Na tym etapie dużym ułatwieniem było skorzystanie z oprogramowania ze strony producenta, czyli aplikacji CubeMX oraz SystemWorkbech. Uruchomiono podstawowe urządzenia peryferyjne mikrokontrolera z wykorzystaniem biblioteki HAL.
+	\subsubsection{Uruchomienie wyświetlacza LCD}
+	Wyświetlacz zamontowany w robocie Elektron ma sterownik KS0108. Ma rozdzielczość 128x64 pikseli i jest monochromatyczny.
+	\subsubsection{Uruchomienie portu Ethernetu}
+	Niestety ta czynność nie została zakończona sukcesem. Mimo usilnych starań, oraz zastosowania się do zaleceń producenta mikrokontroler stale zawieszał się na konfiguracji DMA Ethernetu. Pewną poszlaką w diagnozie zaistniałej sytuacji może być errata dotycząca tego mikrokontrolera, znajdująca się na stronie producenta. Wynika z niej, że mikrokontroler dokładnie w tej rewizji w której był używany, może faktycznie mieć błąd w konfiguracji DMA Ethernetu. Jednak według tej erraty mikrokontroler powinien się zawieszać, tylko jeśli wcześniej był usypiany, a fakt ten nie miał miejsca. Inne możliwe przyczyny niedziałania to błąd w projekcie sterownika, powodujący zakłócenia elektromagnetyczne, albo zwyczajny błąd programisty. Wykluczone zostały jednak ewentualne uszkodzenia fizyczne, poprzez programowanie takiego samego sterownika w robocie Elektron 2. Autor pracy z ciekawości uruchomił port Ethernetu na płytce Nucleo z mikrokontrolerem STM32F207, z tym samym co w STM32F107 rdzeniem Coretex M3, bez większych problemów. Brak możliwości komunikacji w ten sposób spowodował zmianę założeń pracy.
+	\subsubsection{Uruchomienie silników}
+	Wykorzystując bibliotekę NFv2 dostarczoną do sterownika silników udało się zarówno zadawać prędkość jak i uzyskać odczyt danych z enkoderów. Połączenie ze sterownikiem silników odbywa się poprzez USART2 mikrokontrolera STM32F107, z prędkością 5600bit/s. Wykorzystywany jest do tego standard RS485 w trybie half-duplex. Dokonano też niewielkich modyfikacji w kodzie sterownika silników, co w przyszłości może owocować stabilniejszą pracą sterownika.
+	\subsubsection{Przyciski i przekaźniki}
+	Przekaźniki są sterowane, przez porty GPIO mikrokontrolera, za pomocą tranzystorów. Także przyciski są obsługiwane w ten sposób. Do odczytu stanu przycisków zastosowano algorytm cyfrowej eleminacji drgań.
+	\subsubsection{Pomiar napięcia baterii}
+	Realizowany jest poprzez przetwornik ADC mikrokontrolera.
+	\subsubsection{Prace serwisowe}
+	W trakcie użytkowania wykonano przegląd okablowania, wymieniono na nowy dysk twardy, oraz niedziałający układ MAX3485, umieszczony w sterowniku silników.
+	\subsubsection{Implementacja łączności}
+	Została wykonana, poprzez napisane biblioteki dla systemu Linux, udostępniającej API zgodne z wcześniejszymi założeniami. Drugą czynnością wykonaną w ramach zadania było napisanie odpowiedniego programu dla głównego sterownika, współpracującego z tą biblioteką. W ramach tego zadania uruchomiono port RS-232 na obu urządzeniach.
+	
+	
 	\section{Opis planowanych działań}
+	\begin{enumerate}
+		\item Integracja z ROSem.
+		\item Implementacja prostej aplikacji demonstrującej działanie łączności.
+		\item Testy zaimplementowanego rozwiązania. 
+		\item Zainstalowanie nowego oprogramowania i ewentualna adaptacja sprzętu w robotach Elektron 1 i Elektron 2.
+	\end{enumerate}
 \end{document}
