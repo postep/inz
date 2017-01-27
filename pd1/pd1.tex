@@ -15,7 +15,9 @@
 	Wynikiem tej pracy inżynierskiej ma być zrealizowanie oprogramowania, przy pomocy którego komunikować będą się podzespoły robota mobilnego Elektron. 
 	\subsection{Opis robota}
 	Instytut Automatyki i Informatyki Stosowanej posiada trzy roboty Elektron, które służą jako pomoc dydaktyczna. Konstrukcja ta jest platformą o napędzie różnicowym, relalizowanym przez dwa silniki elektryczne. Każdy z nich sprzężony jest z trzema kołami, lewymi bądź prawymi. Ich pracę bezpośrednio nadzoruje sterownik silników z mikrokontolerem dsPIC33FJ32MC302, posiadającym port komunikacyjny RS-485. Głównym modułem decyzyjnym jest umieszczony w obudowie robota komputer klasy PC, z procesorem Intel Atom, dyskiem SSD oraz systemem Ubuntu z zainstalowanym ROSem. Po odpowiedniej konfiguracji robot może być podłączony do sieci wi-fi. Można też do niego podłączyć różne peryferia takie jak Microsoft Kinect. Robot zasilany jest z zestawu baterii, ładowanych przy pomocy zasilacza 24V. \newline
-	Robot wyposażony jest w główny sterownik, który posiada łącza komunikacyjne z różnymi częściami robota. W szczególności to z tym modułem komunikuje się komputer centralny oraz sterownik silników, lecz może on też sterować pracą innych peryferiów. Dodatkowo sterownik ten zarządza zasilaniem robota, ma wbudowany wyświetlacz LCD, zestaw przekaźników mocy oraz cztery przyciski monostabilne. Sterownik ten posiada mikrokontroler STM32F107VCT.	
+	Robot wyposażony jest w główny sterownik, który posiada łącza komunikacyjne z różnymi częściami robota. W szczególności to z tym modułem komunikuje się komputer centralny oraz sterownik silników, lecz może on też sterować pracą innych peryferiów. Dodatkowo sterownik ten zarządza zasilaniem robota, ma wbudowany wyświetlacz LCD, zestaw przekaźników mocy oraz cztery przyciski monostabilne. Sterownik ten posiada mikrokontroler STM32F107VCT.
+	\subsection{Motywacja}
+	Wykonanie niezawodnego i odpowiednio szybkiego oprogrowania może spowodować wzrost użyteczności robotów Elektron, a więc ułatwić pracę innym studentom. Dodatkową zachętą dla autora  jest możliwość nauki systemów robotycznych. Jest to też dobra okazja, aby zdobyć doświadczenie w programowaniu mikrokontrolerów firmy ST oraz pracy ze sprzętem wykorzystywanym w robotyce mobilnej. 
 	\section{Wymagania stawiane pracy}
 	Głównym celem pracy ma być wytworzenie oraz opis rozwiązania, które pozwoli na szybką, deterministyczną i niezawodną komunikację pomiędzy komputerem centralnym oraz głównym sterownikiem z mikrokontrolerem STM32F107. Konsekwencją takiego działania ma być sprawny nadzór podzespołów Elektrona, z których najważniejsza jest transmisja sterowania silników. Działania w początkowej fazie mają być prowadzone na robocie Elektron 3. W przypadku pomyślnego ich ukończenia, istnieje szansa, że wszystkie trzy roboty Elektron zostaną zmodyfikowane w ten sam sposób. Wykonywane działania mają w praktyce objąć napisanie programu dla mikrokontrolera STM32F107, oraz odpowiedniej biblioteki dla systemu Ubuntu. Biblioteka ma zarządzać komunikacją między komputerem centralnym i głownym sterownikiem oraz silnikami robota. Program sterownika silników jest już napisany, a jego kod i sposób komunikacji są dostępne.
 	\subsection{Wymagania funkcjonalne wysokopoziomowe}
@@ -103,7 +105,8 @@
 	\subsubsection{Implementacja łączności}
 	Została wykonana, poprzez napisane biblioteki dla systemu Linux, udostępniającej API zgodne z wcześniejszymi założeniami. Drugą czynnością wykonaną w ramach zadania było napisanie odpowiedniego programu dla głównego sterownika, współpracującego z tą biblioteką. W ramach tego zadania uruchomiono port RS-232 na obu urządzeniach.
 	
-	
+	\section{Program głównego sterownika}
+	Program pisany był, przy wykorzystaniu biblioteki HAL, oraz systemu czasu rzeczywistego FreeRTOS. Składa się on z kilku zadań, z których najważniejsze odpowiadają za komunikację ze sterownikiem silników i komputerem centralnym. Implikacją tego faktu jest zastosowanie różnych priorytetów dla poszczególnych z zadań.
 	\section{Opis planowanych działań}
 	\begin{enumerate}
 		\item Integracja z ROSem.
