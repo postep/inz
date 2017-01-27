@@ -87,31 +87,33 @@
 		uint8_t error;
 	}RxFrame;
 	\end{lstlisting}
+	Dzięki dodaniu pola timestamp istnieje możliwość łatwego pomiaru czasu całej transmisji, wraz z przetwarzaniem danych przez mikrokontroler.
 	\section{Opis wykonanych czynności}
 	\subsection{Uruchomienie mikrokontrolera STM32F107}
 	Autor pracy nigdy wcześniej nie programował mikrokontrolerów tej firmy. Pewien czas został więc spożytkowany na wdrożenie się w dokumentację mikrokontrolera, oraz wybór środowiska programistycznego. W trakcie rozpozania został skonfigurowany debbuger wraz z programatorem ST-Linkv2. Skonfigurowano też system FreeRTOS w wersji ósmej. Na tym etapie dużym ułatwieniem było skorzystanie z oprogramowania ze strony producenta, czyli aplikacji CubeMX oraz SystemWorkbech. Uruchomiono podstawowe urządzenia peryferyjne mikrokontrolera z wykorzystaniem biblioteki HAL.
-	\subsubsection{Uruchomienie wyświetlacza LCD}
+	\subsection{Uruchomienie wyświetlacza LCD}
 	Wyświetlacz zamontowany w robocie Elektron ma sterownik KS0108. Ma rozdzielczość 128x64 pikseli i jest monochromatyczny.
-	\subsubsection{Uruchomienie portu Ethernetu}
-	Niestety ta czynność nie została zakończona sukcesem. Mimo usilnych starań, oraz zastosowania się do zaleceń producenta mikrokontroler stale zawieszał się na konfiguracji DMA Ethernetu. Pewną poszlaką w diagnozie zaistniałej sytuacji może być errata dotycząca tego mikrokontrolera, znajdująca się na stronie producenta. Wynika z niej, że mikrokontroler dokładnie w tej rewizji w której był używany, może faktycznie mieć błąd w konfiguracji DMA Ethernetu. Jednak według tej erraty mikrokontroler powinien się zawieszać, tylko jeśli wcześniej był usypiany, a fakt ten nie miał miejsca. Inne możliwe przyczyny niedziałania to błąd w projekcie sterownika, powodujący zakłócenia elektromagnetyczne, albo zwyczajny błąd programisty. Wykluczone zostały jednak ewentualne uszkodzenia fizyczne, poprzez programowanie takiego samego sterownika w robocie Elektron 2. Autor pracy z ciekawości uruchomił port Ethernetu na płytce Nucleo z mikrokontrolerem STM32F207, z tym samym co w STM32F107 rdzeniem Coretex M3, bez większych problemów. Brak możliwości komunikacji w ten sposób spowodował zmianę założeń pracy.
-	\subsubsection{Uruchomienie silników}
+	\subsection{Uruchomienie portu Ethernetu}
+	Niestety ta czynność nie została zakończona sukcesem. Mimo usilnych starań, oraz zastosowania się do zaleceń producenta mikrokontroler stale zawieszał się na konfiguracji DMA Ethernetu. Pewną poszlaką w diagnozie zaistniałej sytuacji może być lektura erraty opisującej mikrokontroler, znajdująca się na stronie producenta. Wynika z niej, że mikrokontroler dokładnie w tej rewizji w której był używany, może faktycznie mieć błąd w konfiguracji DMA Ethernetu. Jednak według tej erraty mikrokontroler powinien się zawieszać, tylko jeśli wcześniej był usypiany, a fakt ten nie miał miejsca. Inne możliwe przyczyny niedziałania to błąd w projekcie sterownika, powodujący zakłócenia elektromagnetyczne, albo zwyczajny błąd programisty. Wykluczone zostały jednak ewentualne uszkodzenia fizyczne, poprzez programowanie takiego samego sterownika w robocie Elektron 2. Autor pracy z ciekawości uruchomił port Ethernetu na płytce Nucleo z mikrokontrolerem STM32F207, z tym samym co w STM32F107 rdzeniem Coretex M3, bez większych problemów. Brak możliwości komunikacji w ten sposób spowodował zmianę założeń pracy.
+	\subsection{Uruchomienie silników}
 	Wykorzystując bibliotekę NFv2 dostarczoną do sterownika silników udało się zarówno zadawać prędkość jak i uzyskać odczyt danych z enkoderów. Połączenie ze sterownikiem silników odbywa się poprzez USART2 mikrokontrolera STM32F107, z prędkością 5600bit/s. Wykorzystywany jest do tego standard RS485 w trybie half-duplex. Dokonano też niewielkich modyfikacji w kodzie sterownika silników, co w przyszłości może owocować stabilniejszą pracą sterownika.
-	\subsubsection{Przyciski i przekaźniki}
+	\subsection{Przyciski i przekaźniki}
 	Przekaźniki są sterowane, przez porty GPIO mikrokontrolera, za pomocą tranzystorów. Także przyciski są obsługiwane w ten sposób. Do odczytu stanu przycisków zastosowano algorytm cyfrowej eleminacji drgań.
-	\subsubsection{Pomiar napięcia baterii}
+	\subsection{Pomiar napięcia baterii}
 	Realizowany jest poprzez przetwornik ADC mikrokontrolera.
-	\subsubsection{Prace serwisowe}
+	\subsection{Prace serwisowe}
 	W trakcie użytkowania wykonano przegląd okablowania, wymieniono na nowy dysk twardy, oraz niedziałający układ MAX3485, umieszczony w sterowniku silników.
-	\subsubsection{Implementacja łączności}
+	\subsection{Implementacja łączności}
 	Została wykonana, poprzez napisane biblioteki dla systemu Linux, udostępniającej API zgodne z wcześniejszymi założeniami. Drugą czynnością wykonaną w ramach zadania było napisanie odpowiedniego programu dla głównego sterownika, współpracującego z tą biblioteką. W ramach tego zadania uruchomiono port RS-232 na obu urządzeniach.
 	
 	\section{Program głównego sterownika}
 	Program pisany był, przy wykorzystaniu biblioteki HAL, oraz systemu czasu rzeczywistego FreeRTOS. Składa się on z kilku zadań, z których najważniejsze odpowiadają za komunikację ze sterownikiem silników i komputerem centralnym. Implikacją tego faktu jest zastosowanie różnych priorytetów dla poszczególnych z zadań.
 	\section{Opis planowanych działań}
+	Autor pracy uważa, że ogólny stan prac jest dobry. Została wykonana najważniejsza część pracy, czyli funkcjonująca biblioteka dla systemu Ubuntu, wraz z odpowiednim programem dla głównego sterownika robota. Zostało do jednak do wykonania jeszcze kilka zadań.
 	\begin{enumerate}
-		\item Integracja z ROSem.
+		\item Integracja biblioteki z ROSem.
 		\item Implementacja prostej aplikacji demonstrującej działanie łączności.
-		\item Testy zaimplementowanego rozwiązania. 
+		\item Testy przedstawionego rozwiązania. 
 		\item Zainstalowanie nowego oprogramowania i ewentualna adaptacja sprzętu w robotach Elektron 1 i Elektron 2.
 	\end{enumerate}
 \end{document}
