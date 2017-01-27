@@ -1,0 +1,28 @@
+\begin{thebibliography}{1}
+
+\bibitem{STMWebsite}
+``Stm32f107vc.''
+  \url{https://my.st.com/content/my_st_com/en/products/microcontrollers/stm32-32-bit-arm-cortex-mcus/stm32f1-series/stm32f105-107/stm32f107vc.html}.
+
+\bibitem{FreeRTOSWebsite}
+``Freertos.'' \url{http://www.freertos.org/}.
+
+\bibitem{HDLCWebsite}
+``Information technology — telecommunications and information exchange
+  between systems — high-level data link control (hdlc) procedures.''
+  \url{https://www.iso.org/obp/ui/\#iso:std:iso-iec:13239:ed-3:v1:en}.
+
+\bibitem{EtherCATWiki}
+``Ethercat.'' \url{https://en.wikipedia.org/wiki/EtherCAT}.
+
+\bibitem{CANWiki}
+``Can bus.'' \url{https://en.wikipedia.org/wiki/CAN_bus}.
+
+\bibitem{RS}
+``Rs232.'' \url{https://en.wikipedia.org/wiki/RS-232}.
+
+\bibitem{ProgramowanieAplikacjiSieciowych}
+W.R.Stevens, {\em Programowanie zastosowań sieciowych w systemie Unix}.
+\newblock 1995.
+
+\end{thebibliography}

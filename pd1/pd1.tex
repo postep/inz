@@ -6,6 +6,22 @@
 \usepackage{amssymb}
 \usepackage{graphicx}
 \usepackage{listings}
+\usepackage{url}
+
+
+% Page layout (geometry)
+\setlength\voffset{-1in}
+\setlength\hoffset{-1in}
+\setlength\topmargin{1.5cm}
+\setlength\oddsidemargin{1.5cm}
+\setlength\textheight{26cm}
+\setlength\textwidth{18cm}
+\setlength\footskip{1.0cm}
+\setlength\headheight{0cm}
+\setlength\headsep{0cm}
+\setlength\marginparsep{0cm}
+\setlength\marginparwidth{0cm}
+
 \author{Jakub Postępski}
 \title{Pracownia dyplomowa 1}
 \begin{document}
@@ -108,12 +124,16 @@
 	
 	\section{Program głównego sterownika}
 	Program pisany był, przy wykorzystaniu biblioteki HAL, oraz systemu czasu rzeczywistego FreeRTOS. Składa się on z kilku zadań, z których najważniejsze odpowiadają za komunikację ze sterownikiem silników i komputerem centralnym. Implikacją tego faktu jest zastosowanie różnych priorytetów dla poszczególnych z zadań.
+
 	\section{Opis planowanych działań}
-	Autor pracy uważa, że ogólny stan prac jest dobry. Została wykonana najważniejsza część pracy, czyli funkcjonująca biblioteka dla systemu Ubuntu, wraz z odpowiednim programem dla głównego sterownika robota. Zostało do jednak do wykonania jeszcze kilka zadań.
+	Autor pracy uważa, że ogólny stan prac jest dobry. Została wykonana najważniejsza część pracy, czyli funkcjonująca biblioteka dla systemu Ubuntu, wraz z odpowiednim programem dla głównego sterownika robota. Pozostało jednak jeszcze kilka zadań.
 	\begin{enumerate}
 		\item Integracja biblioteki z ROSem.
 		\item Implementacja prostej aplikacji demonstrującej działanie łączności.
 		\item Testy przedstawionego rozwiązania. 
-		\item Zainstalowanie nowego oprogramowania i ewentualna adaptacja sprzętu w robotach Elektron 1 i Elektron 2.
+		\item Zainstalowanie nowego oprogramowania i ewentualna adaptacja sprzętu w robotach Elektron 1 i Elektron 2. \
 	\end{enumerate}
+	\bibliography{thebibliography} 
+	\bibliographystyle{ieeetr}
+	\nocite{*}
 \end{document}
