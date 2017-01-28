@@ -1,12 +1,12 @@
 # Fdb version 3
-["bibtex pd1"] 1485618236 "pd1.aux" "pd1.bbl" "pd1" 1485618251
+["bibtex pd1"] 1485618236 "pd1.aux" "pd1.bbl" "pd1" 1485618529
   "/usr/share/texlive/texmf-dist/bibtex/bst/base/ieeetr.bst" 1292289607 18361 1a00e58565e7f19bf2b3e1bfb82254ae ""
-  "pd1.aux" 1485618237 4612 5e40bafa79de7aff435759602cf13719 ""
+  "pd1.aux" 1485618522 4612 5e40bafa79de7aff435759602cf13719 ""
   "pd1.bcf" 0 -1 0 ""
   "thebibliography.bib" 1485617958 1398 b17ea154f9379c1bec484e02523b580f ""
   (generated)
-  "pd1.blg"
   "pd1.bbl"
+  "pd1.blg"
 ["latex"] 1485469312 "pd1.tex" "/home/postep/Pulpit/inz/pd1/pd1.dvi" "pd1" 1485469312
   "/etc/texmf/web2c/texmf.cnf" 1485468910 1101 af7716885e081ab43982cab7b4672c1a ""
   "/usr/share/texlive/texmf-dist/fonts/map/fontname/texfonts.map" 1272929888 3287 e6b82fe08f5336d4d5ebc73fb1152e87 ""
@@ -64,12 +64,12 @@
   (generated)
   "/home/postep/Pulpit/inz/pd1/pd1.dvi"
   "pd1.dvi"
-  "/home/postep/Pulpit/inz/pd1/pd1.log"
-  "pd1.log"
   "pd1.aux"
-["pdflatex"] 1485618236 "pd1.tex" "/home/postep/Pulpit/inz/pd1/pd1.pdf" "pd1" 1485618251
+  "pd1.log"
+  "/home/postep/Pulpit/inz/pd1/pd1.log"
+["pdflatex"] 1485618521 "pd1.tex" "/home/postep/Pulpit/inz/pd1/pd1.pdf" "pd1" 1485618529
   "/etc/texmf/web2c/texmf.cnf" 1485468910 1101 af7716885e081ab43982cab7b4672c1a ""
-  "/home/postep/Pulpit/inz/pd1/pd1.aux" 1485618237 4612 5e40bafa79de7aff435759602cf13719 ""
+  "/home/postep/Pulpit/inz/pd1/pd1.aux" 1485618522 4612 5e40bafa79de7aff435759602cf13719 ""
   "/usr/share/texlive/texmf-dist/fonts/enc/dvips/pl/plit.enc" 1136849721 1946 62ba825cda1ff16dbaa60d53ac60525a ""
   "/usr/share/texlive/texmf-dist/fonts/enc/dvips/pl/plrm.enc" 1136849721 1944 1845592c00bbe510359fd6887a83ff72 ""
   "/usr/share/texlive/texmf-dist/fonts/enc/dvips/pl/pltt.enc" 1136849721 1971 0a4e750f2a9cb8345529a19560d48a96 ""
@@ -170,12 +170,12 @@
   "images/schemat_komunikacji.png" 1485610423 19227 aef48a03f9af83a2eeeb9804637c9892 ""
   "images/schemat_komunikacji_czasowy.png" 1485613809 27411 360750dacb3b86a69355adbb92eee143 ""
   "images/sterownik.jpg" 1367060524 465543 67781996bcc5a8e01983d6cf5bad89d4 ""
-  "pd1.aux" 1485618237 4612 5e40bafa79de7aff435759602cf13719 ""
+  "pd1.aux" 1485618522 4612 5e40bafa79de7aff435759602cf13719 ""
   "pd1.bbl" 1485618236 704 ebebbb789fbaca1e9cc3c3049f9fbfc7 "bibtex pd1"
-  "pd1.tex" 1485618161 18137 79831ecbf32c8d1b767e7a3f0fdeeecd ""
+  "pd1.tex" 1485618519 18141 c926a025ce6599fceff71682608f9712 ""
   (generated)
-  "/home/postep/Pulpit/inz/pd1/pd1.pdf"
+  "pd1.aux"
+  "pd1.log"
   "pd1.pdf"
   "/home/postep/Pulpit/inz/pd1/pd1.log"
-  "pd1.log"
-  "pd1.aux"
+  "/home/postep/Pulpit/inz/pd1/pd1.pdf"
